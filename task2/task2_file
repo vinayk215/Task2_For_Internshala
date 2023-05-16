@@ -1,0 +1,46 @@
+## You are a DevOps engineer working for a company that hosts a popular website. The website is hosted on an EC2 instance in Amazon EC2. You need to 
+## reate a CloudWatch alarm that triggers an alertt when the CPU usage of the EC2 instance exceeds 80% for five consecutive minutes. Write a Python 
+## script for this. 
+
+
+
+import boto3
+
+# Configure AWS credentials
+
+session = boto3.Session(
+    aws_access_key_id='AKIATTMHFUVC5KCLZMDN',
+    aws_secret_access_key='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',
+    region_name='ap-south-1'  #Mumbai region given
+)
+
+
+# Define the EC2 instance ID to monitor
+instance_id = 'i-099868a6d9c642087'  
+
+
+# Create a CloudWatch client
+cloudwatch = session.client('cloudwatch')
+
+# Create a CPU usage alarm
+cloudwatch.put_metric_alarm(
+    AlarmName='CPUUsageAlarm',
+    AlarmDescription='Alarm triggered when CPU usage exceeds 80% for 5 consecutive minutes',
+    ActionsEnabled=True,
+    AlarmActions=['arn:aws:sns:ap-south-1:247780975941:My_Task2_SNS'],
+    MetricName='CPUUtilization',
+    Namespace='AWS/EC2',
+    Statistic='Average',
+    Dimensions=[
+        {
+            'Name': 'i-099868a6d9c642087',
+            'Value': instance_id
+        },
+    ],
+    Period=60,  # Check CPU usage every 60 seconds
+    EvaluationPeriods=5,  # Trigger the alarm when CPU usage exceeds threshold for 5 consecutive periods
+    Threshold=80,  # Set the CPU usage threshold to 80%
+    ComparisonOperator='GreaterThanOrEqualToThreshold'
+)
+
+print("CloudWatch alarm created successfully!")
